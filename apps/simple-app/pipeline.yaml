@@ -1,0 +1,55 @@
+
+#
+# Resource types
+resource_types:
+  - name: http-api
+    type: docker-image
+    source:
+      repository: aequitas/http-api-resource
+      tag: latest
+
+#
+# Resources
+resources:
+# The repo with our Dockerfile
+  - name: concourse-go-build
+    type: git
+    icon: github
+    source:
+      uri: https://github.com/rdc-lda/concourse-go-build.git
+      branch: main
+
+  # Where we will push the image
+  - name: simple-image
+    type: docker-image
+    icon: docker
+    source:
+      repository: ((image-repo-name))/simple-image
+      insecure_registries:
+        - ((image-repo-name))
+
+  - name: argocd
+    type: http-api
+    icon: kubernetes
+    source:
+      uri: http://argocd-server.argocd.svc.cluster.local:80/api/v1/applications/{app}/sync
+      method: POST
+      headers:
+        Authorization: "Bearer {token}"
+      json:
+        name: "{app}"
+        dryRun: false
+
+#
+# Jobs
+jobs:
+- name: build-push-deploy
+  plan:
+    - get: concourse-go-build
+    - put: simple-image
+      params:
+        build: concourse-go-build
+    - put: argocd
+      params:
+        app: ((argocd_app))
+        token: ((argocd_token))

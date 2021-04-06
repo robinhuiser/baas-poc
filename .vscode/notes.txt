@@ -1,0 +1,13 @@
+#
+# Build the go artefacts
+FROM golang:1.16 AS build
+
+WORKDIR /go/src
+ADD . .
+
+RUN go build -ldflags="-X 'main.Version=v1.0.0'" -a -installsuffix cgo -o echo-arg .
+
+FROM scratch AS runtime
+ENV SAY_WHAT ${SAY_WHAT}
+COPY --from=build /go/src/echo-arg ./
+ENTRYPOINT  ./echo-arg
