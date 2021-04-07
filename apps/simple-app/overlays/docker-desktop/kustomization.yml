@@ -6,5 +6,5 @@ bases:
 
 images:
  - name: simple-app
-   newName: host.docker.internal:5000/simple-app
+   newName: host.docker.internal:5000/simple-image
    newTag: latest

@@ -33,6 +33,7 @@ resources:
     icon: kubernetes
     source:
       uri: http://argocd-server.argocd.svc.cluster.local:80/api/v1/applications/{app}/sync
+      ssl_verify: false
       method: POST
       headers:
         Authorization: "Bearer {token}"
